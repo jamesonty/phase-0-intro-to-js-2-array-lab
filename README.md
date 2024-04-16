@@ -1,65 +1,184 @@
-# Arrays Lab
+# Flatdango
 
-## Learning Goals
+Flatiron Movie Theater is open for business! You will be building out an
+application, Flatdango, that allows a user to purchase movie tickets from the
+theater.
 
-- Practice writing arrays
-- Practice using _destructive_ methods to manipulate arrays
-- Practice using _nondestructive_ methods to manipulate arrays
+## Demo
 
-## Introduction
+Use this gif as an example of how the app should work.
 
-We've learned about how arrays work and about the array methods built in to
-JavaScript that we can use to manipulate them. Now it's time to practice what
-we've learned.
+![Flatdango App Demo](https://curriculum-content.s3.amazonaws.com/phase-1/phase-1-code-challenge-flatdango/flatdango-demo.gif)
 
-If you haven't already, **fork and clone** this lab into your local environment.
-Navigate into its directory in the terminal, then run `code .` to open the files
-in Visual Studio Code.
+> To view in VSCode, right click on the README.md file and select "Open Preview".
 
-## Instructions
+## Setup
 
-Open up the `test` folder and take a look at `indexTest.js`. Note that some of
-the names of the functions you will be writing begin with `destructively` and
-some don't. This is a clue as to which `Array` method you will need to use for
-each function.
+Run this command to get the backend started:
 
-Note also that the first test asks for an array called `cats`, set to an
-initial value of `["Milo", "Otis", "Garfield"]`. In your functions, you will be
-accessing and manipulating this array.
-
-Near the top of `indexTest.js` you will see the following:
-
-```js
-beforeEach(function () {
-  cats.length = 0;
-
-  cats.push("Milo", "Otis", "Garfield");
-});
+```console
+$ json-server --watch db.json
 ```
 
-What this code does is _reset_ the array to its original contents before each
-test is run. The reason we need to do this is because some of your functions
-will be _destructive_ — they will change the original `cats` array. This
-is a problem because it means the input to the remaining functions will be
-dependent on the outcome of other functions. It also means that the expected
-return value of a function might change if the tests are run in a different
-order. This makes it more difficult both to write tests in the first place and
-to figure out how to get the tests to pass. Resetting the array returns us to a
-blank slate between tests.
+Test your server by visiting this route in the browser:
 
-This is also a good illustration of why it's generally good practice to avoid
-mutating a program's state whenever possible. If we use only _nondestructive_
-methods, we have complete control over what's going into and coming out of the
-function. This makes our programs more robust, easier to maintain, and less
-prone to bugs.
+[http://localhost:3000/films](http://localhost:3000/films)
 
-Remember the workflow:
+Then, open the `index.html` file on your browser to run the application.
 
-1. Install the dependencies using `npm install`.
-2. Run the tests using `npm test`.
-3. Read the errors; vocalize what they're asking you to do.
-4. Write code; repeat steps 2 and 3 often until a test passes.
-5. Repeat as needed for the remaining tests.
+Write your code in the `src/index.js` file. The base URL for your API will be
+[http://localhost:3000](http://localhost:3000).
 
-After you have all the tests passing, remember to commit and push your changes
-up to GitHub, then submit your work to Canvas using CodeGrade.
+## Core Deliverables
+
+As a user, I can:
+
+1. See the first movie's details, including its **poster, title, runtime,
+   showtime, and available tickets** when the page loads. The number of
+   available tickets will need to be derived by subtracting the number of
+   `tickets_sold` from the theater's `capacity`. You will need to make a GET
+   request to the following endpoint to retrieve the film data:
+
+   ```json
+   GET /films/1
+
+   Example Response:
+   {
+     "id": "1",
+     "title": "The Giant Gila Monster",
+     "runtime": "108",
+     "capacity": 30,
+     "showtime": "04:00PM",
+     "tickets_sold": 27,
+     "description": "A giant lizard terrorizes a rural Texas community and a heroic teenager attempts to destroy the creature.",
+     "poster": "https://www.gstatic.com/tv/thumb/v22vodart/2157/p2157_v_v8_ab.jpg"
+   }
+   ```
+
+2. See a menu of all movies on the left side of the page in the `ul#films`
+   element when the page loads. (_optional_: you can style each film in the list
+   by adding the classes `film item` to each `li` element.) There is a
+   placeholder `li` in the `ul#films` element that is hardcoded in the HTML —
+   feel free to remove that element by editing the HTML file directly, or use
+   JavaScript to remove the placeholder element before populating the list. You
+   will need to make a GET request to the following endpoint to retrieve the
+   film data:
+
+   ```json
+   GET /films
+
+   Example response:
+   [
+      {
+        "id": "1",
+        "title": "The Giant Gila Monster",
+        "runtime": "108",
+        "capacity": 30,
+        "showtime": "04:00PM",
+        "tickets_sold": 27,
+        "description": "A giant lizard terrorizes a rural Texas community and a heroic teenager attempts to destroy the creature.",
+        "poster": "https://www.gstatic.com/tv/thumb/v22vodart/2157/p2157_v_v8_ab.jpg"
+      },
+      {
+        "id": "2",
+        "title": "Manos: The Hands Of Fate",
+        "runtime": "118",
+        "capacity": 50,
+        "showtime": "06:45PM",
+        "tickets_sold": 44,
+        "description": "A family gets lost on the road and stumbles upon a hidden, underground, devil-worshiping cult led by the fearsome Master and his servant Torgo.",
+        "poster": "https://www.gstatic.com/tv/thumb/v22vodart/47781/p47781_v_v8_ac.jpg"
+      }
+   ]
+   ```
+
+3. Buy a ticket for a movie. After clicking the "Buy Ticket" button, I should
+   see the number of available tickets decreasing on the frontend. I should not
+   be able to buy a ticket if the showing is sold out (if there are 0 tickets
+   available). **A persistence mechanism is needed for this feature. Read the following paragraph for more details**.
+
+   When a ticket is purchased, you need to do the following 
+      - Persist the updated number of `tickets_sold` on
+      the server. Remember, the frontend shows the number of available tickets
+      based on the `tickets_sold` and the `capacity`, so only the `tickets_sold`
+      should be updated on the backend when a ticket is purchased. You will need to
+      make a request that follows this structure:
+
+      ```json
+      PATCH /films/:id
+
+      Request Headers: {
+         Content-Type: application/json
+      }
+
+      Request Body: {
+      "tickets_sold": 28
+      }
+      ----
+      Example Response:
+      {
+         "id": "1",
+         "title": "The Giant Gila Monster",
+         "runtime": "108",
+         "capacity": 30,
+         "showtime": "04:00PM",
+         "tickets_sold": 28,
+         "description": "A giant lizard terrorizes a rural Texas community and a heroic teenager attempts to destroy the creature.",
+         "poster": "https://www.gstatic.com/tv/thumb/v22vodart/2157/p2157_v_v8_ab.jpg"
+      }
+      ```
+      - POST the new ticket to the tickets endpoint in the database
+      ```json
+      POST /tickets
+      Request Body: {
+         "film_id": "28"
+         "number_of_tickets": 5
+      }
+
+      Example Response:
+      {
+         "id": "1"
+         "film_id": "28"
+         "number_of_tickets": 5
+      }
+      ```
+
+5. Delete a film from the server. Add a delete button next to each film in the
+   `ul#films` menu. When the button is clicked, remove the film from the list
+   and also delete the film on the server:
+
+   ```json
+   DELETE /films/:id
+
+   Example Response:
+   {}
+   ```
+
+6. When a movie is sold out (when there are no available tickets remaining),
+   indicate that the movie is sold out by changing the button text to "Sold
+   Out". Also update the film item in the `ul#films` menu by adding a class of
+   `sold-out` to the film. For reference, here's what the contents of the
+   `ul#films` element should look like with a sold out film:
+
+   ```html
+   <li class="film item">(Title of film)</li>
+   <li class="sold-out film item">(Title of a sold-out film)</li>
+   <li class="film item">(Title of film)</div>
+   ```
+
+### Bonus Deliverables
+
+These bonus deliverables are here if you want an extra challenge and won't
+affect your score. **Make sure to commit your work to save your progress before
+attempting the bonus deliverables!**
+
+1. Click on a movie in the menu to replace the currently displayed movie's
+   details with the new movie's details. Note that you may have to make an
+   additional GET request to access the movie's details.
+
+
+
+
+
+
+
